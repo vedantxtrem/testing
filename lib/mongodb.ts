@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Mongoose } from "mongoose";
 
 const MONGODB_URI = process.env.MONGODB_URI!;
 
@@ -6,11 +6,21 @@ if (!MONGODB_URI) {
   throw new Error("MONGODB_URI not defined");
 }
 
-let cached = global.mongoose;
+type MongooseCache = {
+  conn: Mongoose | null;
+  promise: Promise<Mongoose> | null;
+};
 
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
-}
+// 👇 Explicitly cast global
+const globalWithMongoose = global as typeof global & {
+  mongoose?: MongooseCache;
+};
+
+const cached: MongooseCache =
+  globalWithMongoose.mongoose ?? {
+    conn: null,
+    promise: null,
+  };
 
 export async function connectDB() {
   if (cached.conn) return cached.conn;
@@ -20,5 +30,7 @@ export async function connectDB() {
   }
 
   cached.conn = await cached.promise;
+  globalWithMongoose.mongoose = cached;
+
   return cached.conn;
 }
