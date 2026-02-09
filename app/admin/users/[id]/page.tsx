@@ -4,22 +4,26 @@ import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/lib/models/User";
 import UserEditForm from "@/components/admin/UserEditForm";
-import order from "@/lib/models/order";
+import Order from "@/lib/models/order";
 
 interface Props {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default async function UserDetailPage({ params }: Props) {
+  const { id } = await params; // ✅ IMPORTANT
+
   await connectDB();
 
-  const user = await User.findById(params.id).select("-password");
+  const user = await User.findById(id).select("-password");
   if (!user) redirect("/admin/users");
 
-  const orders = await order.find({ user: user._id }).sort({ createdAt: -1 });
+  const orders = await Order.find({ user: user._id }).sort({
+    createdAt: -1,
+  });
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 w-[70%] text-black md:ml-16">
       <h1 className="text-2xl font-bold">👤 User Details</h1>
 
       {/* USER INFO */}
