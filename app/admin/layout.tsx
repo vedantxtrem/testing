@@ -23,7 +23,7 @@ export default async function AdminLayout({
       </header>
       <AdminSidebar/>
 
-      <main className="p-6">{children}</main>
+      <main className="w-full h-full flex justify-center items-center ">{children}</main>
     </div>
   );
 }

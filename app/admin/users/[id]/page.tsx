@@ -23,7 +23,7 @@ export default async function UserDetailPage({ params }: Props) {
   });
 
   return (
-    <div className="p-6 space-y-6 w-[70%] text-black md:ml-16">
+    <div className="p-6 space-y-6 w-[70%] text-black md:ml-16 flex justify-center items-center">
       <h1 className="text-2xl font-bold">👤 User Details</h1>
 
       {/* USER INFO */}

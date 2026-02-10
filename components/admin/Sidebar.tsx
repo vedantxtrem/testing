@@ -48,7 +48,7 @@ export default function AdminSidebar() {
       ref={sidebarRef}
       className={`fixed z-50 bg-gray-700 text-white transition-all duration-200
         ${isOpen ? "w-56" : "w-16"}
-        h-[70%] top-28 left-10 rounded-3xl`}
+        h-[80%] top-24 left-8 rounded-3xl`}
     >
       {/* Toggle */}
       <div className={`flex ${isOpen ? "justify-end" : "justify-center"} p-3`}>
