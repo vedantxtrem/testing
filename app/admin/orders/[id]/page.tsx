@@ -68,8 +68,8 @@ export default async function AdminSingleOrder({ params }: Props) {
 
       {/* UPDATE FORM */}
       <form
-        action={`/api/admin/order/${order._id}`}
-        method="PUT"
+        // action={`/api/admin/order/${order._id}`}
+        // method="PUT"
         className="bg-white p-4 rounded shadow space-y-4"
       >
         <input type="hidden" name="_method" value="PUT" />
