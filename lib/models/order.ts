@@ -1,79 +1,78 @@
 import mongoose, { Schema, models, model } from "mongoose";
 
+const OrderItemSchema = new Schema(
+  {
+    product: {
+      type: Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
+    },
+
+    name: { type: String, required: true }, // snapshot
+    price: { type: Number, required: true }, // snapshot
+    quantity: { type: Number, required: true, min: 1 },
+
+    image: String, // snapshot
+  },
+  { _id: false }
+);
+
+const ShippingAddressSchema = new Schema(
+  {
+    fullName: String,
+    phone: String,
+    addressLine1: String,
+    addressLine2: String,
+    city: String,
+    state: String,
+    pincode: String,
+    country: String,
+  },
+  { _id: false }
+);
+
 const OrderSchema = new Schema(
   {
-    // 🔗 User reference
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
 
-    // 🛒 Ordered items
-    items: [
-      {
-        productId: {
-          type: Schema.Types.ObjectId,
-          ref: "Product", // optional (only if you have product model)
-        },
-        name: {
-          type: String,
-          required: true,
-        },
-        quantity: {
-          type: Number,
-          required: true,
-          min: 1,
-        },
-        price: {
-          type: Number,
-          required: true,
-        },
-      },
-    ],
+    orderItems: [OrderItemSchema],
 
-    // 💰 Payment
-    totalAmount: {
-      type: Number,
-      required: true,
-    },
+    shippingAddress: ShippingAddressSchema,
+
+    totalAmount: { type: Number, required: true },
 
     paymentMethod: {
       type: String,
-      enum: ["COD", "UPI", "CARD", "NETBANKING"],
-      default: "COD",
+      enum: ["UPI", "COD"], // ✅ Only these
+      required: true,
     },
 
     paymentStatus: {
       type: String,
-      enum: ["pending", "paid", "failed", "refunded"],
+      enum: ["pending", "paid"],
       default: "pending",
     },
 
-    // 📦 Order lifecycle
-    status: {
+    orderStatus: {
       type: String,
-      enum: ["placed", "confirmed", "shipped", "delivered", "cancelled"],
+      enum: [
+        "placed",
+        "confirmed",
+        "shipped",
+        "delivered",
+        "cancelled",
+      ],
       default: "placed",
     },
 
-    // 🏠 Delivery info
-    shippingAddress: {
-      name: String,
-      phone: String,
-      addressLine: String,
-      city: String,
-      state: String,
-      pincode: String,
-    },
-
-    // 🧾 Tracking (optional)
-    trackingId: String,
-    courier: String,
+    paidAt: Date,
+    deliveredAt: Date,
   },
-  {
-    timestamps: true, // createdAt & updatedAt
-  }
+  { timestamps: true }
 );
 
 export default models.Order || model("Order", OrderSchema);

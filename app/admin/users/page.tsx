@@ -68,7 +68,7 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="space-y-6 w-full flex flex-col justify-center items-center ">
+    <div className="space-y-6 w-full flex flex-col justify-center items-center mt-6">
       {/* Header */}
       <div className=" w-[70%] flex flex-col gap-4 md:flex-row md:items-center md:justify-between mt-4">
         <h1 className="text-2xl font-bold text-gray-800">Manage Users</h1>

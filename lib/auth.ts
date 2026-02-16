@@ -1,65 +1,87 @@
-import type { NextAuthOptions } from "next-auth";
-import Credentials from "next-auth/providers/credentials";
+import { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/lib/models/User";
 
 export const authOptions: NextAuthOptions = {
+  session: {
+    strategy: "jwt",
+  },
+
   providers: [
-    Credentials({
+    CredentialsProvider({
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
+
       async authorize(credentials) {
-        console.log("LOGIN ATTEMPT", credentials);
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Missing credentials");
+          throw new Error("Email and password required");
         }
 
         await connectDB();
 
-        const user = await User.findOne({ email: credentials.email });
-        if (!user) throw new Error("User not found");
+        const user = await User.findOne({
+          email: credentials.email,
+        });
 
-        const isValid = await bcrypt.compare(
+        if (!user) {
+          throw new Error("User not found");
+        }
+
+        if (!user.isActive) {
+          throw new Error("Account disabled");
+        }
+
+        const isMatch = await bcrypt.compare(
           credentials.password,
           user.password
         );
-        if (!isValid) throw new Error("Invalid password");
+
+        if (!isMatch) {
+          throw new Error("Invalid password");
+        }
 
         return {
           id: user._id.toString(),
-          email: user.email,
           name: user.name,
+          email: user.email,
           role: user.role,
+          addresses: user.addresses,
         };
       },
     }),
   ],
 
-  session: { strategy: "jwt" },
-
   callbacks: {
     async jwt({ token, user }) {
+      // First login
       if (user) {
-        token.role = user.role;
         token.id = user.id;
+        token.role = user.role;
+        token.addresses = user.addresses;
       }
+
       return token;
     },
+
     async session({ session, token }) {
-      if (session.user) {
-        session.user.role = token.role as "admin" | "user";
+      if (token) {
         session.user.id = token.id as string;
+        session.user.role = token.role as "admin" || "user";
+        session.user.addresses = token.addresses as any[];
       }
+
       return session;
     },
   },
 
-  // ❌ REMOVE THIS
-  // pages: {
-  //   signIn: "/login",
-  // },
+  pages: {
+    signIn: "/login",
+  },
+
+  secret: process.env.NEXTAUTH_SECRET,
 };

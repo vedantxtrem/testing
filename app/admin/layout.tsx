@@ -1,5 +1,7 @@
+// app/admin/layout.tsx
+
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth"; // adjust path if needed
+import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import AdminSidebar from "@/components/admin/Sidebar";
 
@@ -12,18 +14,20 @@ export default async function AdminLayout({
 
   // 🔐 Admin protection
   if (!session || session.user.role !== "admin") {
-    redirect("/login"); // or "/" if you prefer
+    redirect("/login");
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Optional: Admin Navbar */}
-      <header className="bg-amber-700 text-white px-6 py-4 font-bold">
-        Admin Dashboard
-      </header>
-      <AdminSidebar/>
+    <div className="flex min-h-screen bg-gray-100 mt-16">
+      {/* Fixed Sidebar */}
+      <AdminSidebar />
 
-      <main className="w-full h-full flex justify-center items-center ">{children}</main>
+      {/* Right Side Content */}
+      <div className="flex-1 ml-64 mt-7">
+        
+
+        <main className="p-8">{children}</main>
+      </div>
     </div>
   );
 }
